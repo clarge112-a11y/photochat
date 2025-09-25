@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Photochat</string>
+    <string name="title_activity_main">Photochat</string>
+    <string name="package_name">com.carll.photochat</string>
+    <string name="custom_url_scheme">com.carll.photochat</string>
+</resources>
