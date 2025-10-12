@@ -1,5 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
-import { httpLink } from "@trpc/client";
+import { httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
 // Use a generic type to avoid bundling backend code in frontend
@@ -203,7 +203,7 @@ const createTRPCClient = () => {
   
   return (trpc as any).createClient({
     links: [
-      httpLink({
+      httpBatchLink({
         url: trpcUrl,
         transformer: superjson,
         fetch: customFetch,
