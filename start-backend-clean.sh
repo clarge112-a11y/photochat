@@ -1,36 +1,25 @@
 #!/bin/bash
 
-echo "🧹 Cleaning up existing backend processes..."
+# Clean Start Backend Script
+# This script kills any existing backend process and starts fresh
 
-# Kill processes on common backend ports
-for port in 3001 3002 3003 8080; do
-    echo "Checking port $port..."
-    pid=$(lsof -ti:$port 2>/dev/null)
-    if [ ! -z "$pid" ]; then
-        echo "Killing process $pid on port $port"
-        kill -9 $pid 2>/dev/null || true
-        sleep 1
-    fi
-done
+echo "🚀 Starting PhotoChat Backend (Clean Start)..."
+echo ""
 
-echo "🔍 Finding available port..."
-for port in 3001 3002 3003 3004 3005; do
-    if ! lsof -i:$port >/dev/null 2>&1; then
-        echo "✅ Found available port: $port"
-        export PORT=$port
-        export EXPO_PUBLIC_BACKEND_PORT=$port
-        break
-    fi
-done
+# Kill any existing backend processes
+echo "🔪 Killing any existing backend processes..."
+pkill -f "bun.*hono" 2>/dev/null || true
+lsof -ti:3001 | xargs kill -9 2>/dev/null || true
+sleep 2
 
-if [ -z "$PORT" ]; then
-    echo "❌ No available ports found"
+# Verify port is free
+if lsof -Pi :3001 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
+    echo "❌ Port 3001 is still in use after cleanup!"
+    echo "Please manually kill the process: lsof -ti:3001 | xargs kill -9"
     exit 1
 fi
 
-echo "🚀 Starting backend on port $PORT..."
-echo "📝 Setting EXPO_PUBLIC_BACKEND_PORT=$PORT for frontend"
-
-# Start the backend using bun
-cd /home/user/rork-app
-exec bun run backend/hono.ts --port $PORT
+# Start the backend
+echo "🚀 Starting backend on port 3001..."
+echo ""
+PORT=3001 bun backend/hono.ts
