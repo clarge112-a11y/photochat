@@ -31,11 +31,29 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     if (!email.trim() || !password.trim()) {
       return { error: { message: 'Email and password are required' } };
     }
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    return { error };
+    
+    try {
+      console.log('🔐 Attempting sign in for:', email.trim());
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      
+      if (error) {
+        console.error('❌ Sign in error:', error);
+        return { error };
+      }
+      
+      console.log('✅ Sign in successful');
+      return { error: null };
+    } catch (error: any) {
+      console.error('❌ Sign in exception:', error);
+      return { 
+        error: { 
+          message: error.message || 'Network error. Please check your connection and try again.' 
+        } 
+      };
+    }
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, username: string, displayName: string) => {

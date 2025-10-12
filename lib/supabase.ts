@@ -1,8 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const supabaseUrl = 'https://ypumvyhwtpscevoqgcat.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwdW12eWh3dHBzY2V2b3FnY2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMTAwNTYsImV4cCI6MjA3MzY4NjA1Nn0.oiKFbAhKLmdjZ72rPJ_ExeZLk6-b3CEyduUfSRZl9z8';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ypumvyhwtpscevoqgcat.supabase.co';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwdW12eWh3dHBzY2V2b3FnY2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMTAwNTYsImV4cCI6MjA3MzY4NjA1Nn0.oiKFbAhKLmdjZ72rPJ_ExeZLk6-b3CEyduUfSRZl9z8';
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Supabase configuration missing!');
+  console.error('Please set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in .env.local');
+}
+
+console.log('🔧 Supabase URL:', supabaseUrl);
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -10,6 +17,25 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
+  },
+  global: {
+    fetch: (url, options = {}) => {
+      console.log('🌐 Supabase fetch:', url);
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+        },
+      }).catch((error) => {
+        console.error('❌ Supabase fetch error:', error);
+        console.error('URL was:', url);
+        console.error('This usually means:');
+        console.error('1. Network connectivity issues');
+        console.error('2. Supabase project is paused (check https://supabase.com/dashboard)');
+        console.error('3. Invalid Supabase URL or credentials');
+        throw error;
+      });
+    },
   },
 });
 
