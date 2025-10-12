@@ -18,25 +18,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: false,
   },
-  global: {
-    fetch: (url, options = {}) => {
-      console.log('🌐 Supabase fetch:', url);
-      return fetch(url, {
-        ...options,
-        headers: {
-          ...options.headers,
-        },
-      }).catch((error) => {
-        console.error('❌ Supabase fetch error:', error);
-        console.error('URL was:', url);
-        console.error('This usually means:');
-        console.error('1. Network connectivity issues');
-        console.error('2. Supabase project is paused (check https://supabase.com/dashboard)');
-        console.error('3. Invalid Supabase URL or credentials');
-        throw error;
-      });
-    },
-  },
 });
 
 export type Database = {

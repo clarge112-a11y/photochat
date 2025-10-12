@@ -43,13 +43,12 @@ app.use("*", async (c, next) => {
 });
 
 // Mount tRPC router - Primary endpoint at /api/trpc
-// IMPORTANT: Use /api/trpc (without /*) to properly handle all tRPC routes
+// IMPORTANT: Use /api/trpc/* to properly handle all tRPC routes
 app.use(
-  "/api/trpc",
+  "/api/trpc/*",
   trpcServer({
     router: appRouter,
     createContext,
-    endpoint: '/api/trpc',
     onError: ({ error, path, type }) => {
       console.error('[tRPC Error]', { path, type, error: error.message });
       console.error('[tRPC Error stack]', error.stack);
@@ -62,11 +61,10 @@ app.use(
 
 // Legacy /trpc routes for backward compatibility
 app.use(
-  "/trpc",
+  "/trpc/*",
   trpcServer({
     router: appRouter,
     createContext,
-    endpoint: '/trpc',
     onError: ({ error, path, type }) => {
       console.error('[tRPC Error - Legacy]', { path, type, error: error.message });
       console.error('[tRPC Error stack - Legacy]', error.stack);
