@@ -202,10 +202,11 @@ const createTRPCClient = () => {
   console.log('💡 Using primary tRPC endpoints (/api/trpc) for better compatibility');
   
   return (trpc as any).createClient({
+    transformer: superjson,
     links: [
       httpBatchLink({
         url: trpcUrl,
-        transformer: superjson,
+        maxURLLength: 1,
         fetch: customFetch,
         async headers() {
           const headers: Record<string, string> = {
@@ -216,7 +217,6 @@ const createTRPCClient = () => {
           };
           
           try {
-            // Lazy import supabase to avoid circular dependencies
             const { supabase } = await import('@/lib/supabase');
             const { data: { session } } = await supabase.auth.getSession();
             
