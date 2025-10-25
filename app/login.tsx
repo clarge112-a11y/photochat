@@ -58,13 +58,25 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
+    try {
+      const { error } = await signIn(email, password);
+      setLoading(false);
 
-    if (error) {
-      showError(error.message || 'Failed to sign in');
-    } else {
-      router.replace('/(tabs)/camera');
+      if (error) {
+        let errorMessage = error.message || 'Failed to sign in';
+        
+        if (errorMessage.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to the authentication server.\n\nPlease check:\n• Your internet connection\n• Supabase project status (it may be paused)\n• Firewall settings';
+        }
+        
+        showError(errorMessage);
+      } else {
+        router.replace('/(tabs)/camera');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      console.error('Login exception:', err);
+      showError('An unexpected error occurred. Please try again.');
     }
   };
 

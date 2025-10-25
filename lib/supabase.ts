@@ -9,7 +9,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Please set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in .env.local');
 }
 
-console.log('🔧 Supabase URL:', supabaseUrl);
+console.log('🔧 Supabase Configuration:');
+console.log('  URL:', supabaseUrl);
+console.log('  Key length:', supabaseAnonKey?.length || 0);
+console.log('  Env loaded:', !!process.env.EXPO_PUBLIC_SUPABASE_URL);
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

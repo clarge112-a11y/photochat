@@ -34,60 +34,23 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     
     try {
       console.log('🔐 Attempting sign in for:', email.trim());
-      console.log('🌐 Supabase URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ypumvyhwtpscevoqgcat.supabase.co';
+      console.log('🌐 Supabase URL:', supabaseUrl);
       
-      const testUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ypumvyhwtpscevoqgcat.supabase.co';
-      console.log('🔍 Testing connectivity to:', testUrl);
-      
-      try {
-        const healthCheck = await fetch(`${testUrl}/auth/v1/health`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log('🏥 Health check status:', healthCheck.status);
-      } catch (healthError) {
-        console.error('❌ Health check failed:', healthError);
-        return { 
-          error: { 
-            message: 'Cannot reach authentication server. Please check your internet connection.' 
-          } 
-        };
-      }
-      
-      const { error, data } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
       
       if (error) {
         console.error('❌ Sign in error:', error);
-        
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('Network')) {
-          return { 
-            error: { 
-              message: 'Cannot connect to authentication server. Please check your internet connection and try again.' 
-            } 
-          };
-        }
-        
         return { error };
       }
       
-      console.log('✅ Sign in successful:', data);
+      console.log('✅ Sign in successful');
       return { error: null };
     } catch (error: any) {
       console.error('❌ Sign in exception:', error);
-      
-      if (error.name === 'AuthRetryableFetchError' || error.message?.includes('Failed to fetch')) {
-        return { 
-          error: { 
-            message: 'Cannot connect to authentication server. Please verify:\n1. Your internet connection is active\n2. Supabase URL is correct\n3. No firewall is blocking the connection' 
-          } 
-        };
-      }
-      
       return { 
         error: { 
           message: error.message || 'An unexpected error occurred. Please try again.' 
