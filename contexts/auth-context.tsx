@@ -34,23 +34,43 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     
     try {
       console.log('🔐 Attempting sign in for:', email.trim());
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('🌐 Supabase URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+      
+      const { error, data } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
       
       if (error) {
         console.error('❌ Sign in error:', error);
+        
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('Network')) {
+          return { 
+            error: { 
+              message: 'Cannot connect to authentication server. Please check your internet connection and try again.' 
+            } 
+          };
+        }
+        
         return { error };
       }
       
-      console.log('✅ Sign in successful');
+      console.log('✅ Sign in successful:', data);
       return { error: null };
     } catch (error: any) {
       console.error('❌ Sign in exception:', error);
+      
+      if (error.name === 'AuthRetryableFetchError' || error.message?.includes('Failed to fetch')) {
+        return { 
+          error: { 
+            message: 'Cannot connect to authentication server. Please verify:\n1. Your internet connection is active\n2. Supabase URL is correct\n3. No firewall is blocking the connection' 
+          } 
+        };
+      }
+      
       return { 
         error: { 
-          message: error.message || 'Network error. Please check your connection and try again.' 
+          message: error.message || 'An unexpected error occurred. Please try again.' 
         } 
       };
     }
