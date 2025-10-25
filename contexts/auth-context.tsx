@@ -36,6 +36,26 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       console.log('🔐 Attempting sign in for:', email.trim());
       console.log('🌐 Supabase URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
       
+      const testUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ypumvyhwtpscevoqgcat.supabase.co';
+      console.log('🔍 Testing connectivity to:', testUrl);
+      
+      try {
+        const healthCheck = await fetch(`${testUrl}/auth/v1/health`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('🏥 Health check status:', healthCheck.status);
+      } catch (healthError) {
+        console.error('❌ Health check failed:', healthError);
+        return { 
+          error: { 
+            message: 'Cannot reach authentication server. Please check your internet connection.' 
+          } 
+        };
+      }
+      
       const { error, data } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
